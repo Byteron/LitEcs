@@ -105,19 +105,6 @@ public static class Ecs
     {
         return ref World.GetComponent<T>(entity, target);
     }
-        
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool TryGetComponent<T>(Entity entity, out Ref<T> component) where T : struct
-    {
-        if (!HasComponent<T>(entity))
-        {
-            component = default;
-            return false;
-        }
-
-        component = new Ref<T>(ref World.GetComponent<T>(entity, Entity.None));
-        return true;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasComponent<T>(Entity entity, Entity target) where T : struct

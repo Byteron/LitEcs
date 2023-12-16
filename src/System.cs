@@ -10,19 +10,19 @@ public interface ISystem
 
 public sealed class SystemGroup
 {
-    readonly List<ISystem> _systems = new();
+    readonly List<ISystem> systems = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SystemGroup Add(ISystem aSystem)
     {
-        _systems.Add(aSystem);
+        systems.Add(aSystem);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(World world)
     {
-        foreach (var system in _systems)
+        foreach (var system in systems)
         {
             system.Run(world);
         }

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace LitEcs;
 
@@ -96,16 +93,6 @@ public class Query<C1, C2> : Query
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var storage1 = table.GetStorage<C1>(Entity.None);
-        var storage2 = table.GetStorage<C2>(Entity.None);
-        return new RefValueTuple<C1, C2>(ref storage1[meta.Row], ref storage2[meta.Row]);
-    }
-
     public void Run(Action<int, C1[], C2[]> action)
     {
         World.Lock();
@@ -152,18 +139,6 @@ public class Query<C1, C2, C3> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var storage1 = table.GetStorage<C1>(Entity.None);
-        var storage2 = table.GetStorage<C2>(Entity.None);
-        var storage3 = table.GetStorage<C3>(Entity.None);
-        return new RefValueTuple<C1, C2, C3>(ref storage1[meta.Row], ref storage2[meta.Row],
-            ref storage3[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[]> action)
@@ -215,19 +190,6 @@ public class Query<C1, C2, C3, C4> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[]> action)
@@ -282,20 +244,6 @@ public class Query<C1, C2, C3, C4, C5> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4, C5> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        var s5 = table.GetStorage<C5>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4, C5>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[]> action)
@@ -353,22 +301,6 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4, C5, C6> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        var s5 = table.GetStorage<C5>(Entity.None);
-        var s6 = table.GetStorage<C6>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4, C5, C6>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
-            ref s6[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[]> action)
@@ -429,23 +361,6 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4, C5, C6, C7> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        var s5 = table.GetStorage<C5>(Entity.None);
-        var s6 = table.GetStorage<C6>(Entity.None);
-        var s7 = table.GetStorage<C7>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
-            ref s6[meta.Row], ref s7[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[]> action)
@@ -509,24 +424,6 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        var s5 = table.GetStorage<C5>(Entity.None);
-        var s6 = table.GetStorage<C6>(Entity.None);
-        var s7 = table.GetStorage<C7>(Entity.None);
-        var s8 = table.GetStorage<C8>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
-            ref s6[meta.Row], ref s7[meta.Row], ref s8[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[]> action)
@@ -593,25 +490,6 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
 {
     public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8, C9> Get(Entity entity)
-    {
-        var meta = World.GetEntityMeta(entity.Id);
-        var table = World.GetTable(meta.Table);
-        var s1 = table.GetStorage<C1>(Entity.None);
-        var s2 = table.GetStorage<C2>(Entity.None);
-        var s3 = table.GetStorage<C3>(Entity.None);
-        var s4 = table.GetStorage<C4>(Entity.None);
-        var s5 = table.GetStorage<C5>(Entity.None);
-        var s6 = table.GetStorage<C6>(Entity.None);
-        var s7 = table.GetStorage<C7>(Entity.None);
-        var s8 = table.GetStorage<C8>(Entity.None);
-        var s9 = table.GetStorage<C9>(Entity.None);
-        return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8, C9>(ref s1[meta.Row], ref s2[meta.Row],
-            ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
-            ref s6[meta.Row], ref s7[meta.Row], ref s8[meta.Row], ref s9[meta.Row]);
     }
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[], C9[]> action)
