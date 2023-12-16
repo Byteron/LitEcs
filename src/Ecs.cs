@@ -12,6 +12,18 @@ public static class Ecs
     public static World World = new();
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Filter Has<T>() => new(StorageType.Create<T>(), FilterType.Has);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Filter Not<T>() => new(StorageType.Create<T>(), FilterType.Not);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Filter Any<T>() => new(StorageType.Create<T>(), FilterType.Any);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Set Set<T>(T data = default) where T: struct => new(StorageType.Create<T>(), data);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Entity Spawn(params Set[] types)
     {
         var entity = World.Spawn();
@@ -153,25 +165,6 @@ public static class Ecs
     {
         return Query<Entity>();
     }
-
-    internal static Mask GetMask(Filter[] filters)
-    {
-        var mask = MaskPool.Get();
-        foreach (var filter in filters)
-        {
-            switch (filter.FilterType)
-            {
-                case FilterType.Has: mask.HasTypes.Add(filter.StorageType);
-                    break;
-                case FilterType.Not: mask.NotTypes.Add(filter.StorageType);
-                    break;
-                case FilterType.Any: mask.AnyTypes.Add(filter.StorageType);
-                    break;
-            }
-        }
-
-        return mask;
-    }
     
     public static Query<C> Query<C>(params Filter[] filters) where C : struct
     {
@@ -297,8 +290,22 @@ public static class Ecs
         return World.GetTypeEntity(type);
     }
     
-    public static Filter Has<T>() => new(StorageType.Create<T>(), FilterType.Has);
-    public static Filter Not<T>() => new(StorageType.Create<T>(), FilterType.Not);
-    public static Filter Any<T>() => new(StorageType.Create<T>(), FilterType.Any);
-    public static Set Set<T>(T data = default) where T: struct => new(StorageType.Create<T>(), data);
+    internal static Mask GetMask(Filter[] filters)
+    {
+        var mask = MaskPool.Get();
+        foreach (var filter in filters)
+        {
+            switch (filter.FilterType)
+            {
+                case FilterType.Has: mask.HasTypes.Add(filter.StorageType);
+                    break;
+                case FilterType.Not: mask.NotTypes.Add(filter.StorageType);
+                    break;
+                case FilterType.Any: mask.AnyTypes.Add(filter.StorageType);
+                    break;
+            }
+        }
+
+        return mask;
+    }
 }
