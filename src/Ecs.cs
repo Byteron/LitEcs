@@ -43,9 +43,9 @@ public static class Ecs
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void DespawnAllWith<T>() where T : struct
     {
-        var query = Query<Entity>(Has<T>());
+        var query = Query<Entity, T>();
         
-        query.Run((count, entities) =>
+        query.Run((count, entities, ts) =>
         {
             for (var i = 0; i < count; i++)
             {
@@ -166,15 +166,15 @@ public static class Ecs
         return Query<Entity>();
     }
     
-    public static Query<C> Query<C>(params Filter[] filters) where C : struct
+    public static Query<C> Query<C>(Filter[]? filters = null) where C : struct
     {
         var mask = GetMask(filters);
         mask.Has(StorageType.Create<C>());
         return (Query<C>)World.GetQuery(mask, 
             (archetypes, mask, matchingTables) => new Query<C>(archetypes, mask, matchingTables));
     }
-
-    public static Query<C1, C2> Query<C1, C2>(params Filter[] filters) where C1 : struct where C2 : struct
+    
+    public static Query<C1, C2> Query<C1, C2>(Filter[]? filters = null) where C1 : struct where C2 : struct
     {
         var mask = GetMask(filters);
         mask.Has(StorageType.Create<C1>());
@@ -183,7 +183,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3> Query<C1, C2, C3>(params Filter[] filters) where C1 : struct where C2 : struct where C3 : struct
+    public static Query<C1, C2, C3> Query<C1, C2, C3>(Filter[]? filters = null) where C1 : struct where C2 : struct where C3 : struct
     {
         var mask = GetMask(filters);
         mask.Has(StorageType.Create<C1>());
@@ -193,7 +193,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2, C3>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3, C4> Query<C1, C2, C3, C4>(params Filter[] filters) where C1 : struct
+    public static Query<C1, C2, C3, C4> Query<C1, C2, C3, C4>(Filter[]? filters = null) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
@@ -207,7 +207,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3, C4, C5> Query<C1, C2, C3, C4, C5>(params Filter[] filters) where C1 : struct
+    public static Query<C1, C2, C3, C4, C5> Query<C1, C2, C3, C4, C5>(Filter[]? filters = null) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
@@ -223,7 +223,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3, C4, C5, C6> Query<C1, C2, C3, C4, C5, C6>(params Filter[] filters) where C1 : struct
+    public static Query<C1, C2, C3, C4, C5, C6> Query<C1, C2, C3, C4, C5, C6>(Filter[]? filters = null) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
@@ -241,7 +241,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3, C4, C5, C6, C7> Query<C1, C2, C3, C4, C5, C6, C7>(params Filter[] filters) where C1 : struct
+    public static Query<C1, C2, C3, C4, C5, C6, C7> Query<C1, C2, C3, C4, C5, C6, C7>(Filter[]? filters = null) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
@@ -261,7 +261,7 @@ public static class Ecs
             (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7>(archetypes, mask, matchingTables));
     }
 
-    public static Query<C1, C2, C3, C4, C5, C6, C7, C8> Query<C1, C2, C3, C4, C5, C6, C7, C8>(params Filter[] filters)
+    public static Query<C1, C2, C3, C4, C5, C6, C7, C8> Query<C1, C2, C3, C4, C5, C6, C7, C8>(Filter[]? filters = null)
         where C1 : struct
         where C2 : struct
         where C3 : struct
@@ -290,9 +290,12 @@ public static class Ecs
         return World.GetTypeEntity(type);
     }
     
-    internal static Mask GetMask(Filter[] filters)
+    private static Mask GetMask(Filter[]? filters)
     {
         var mask = MaskPool.Get();
+        
+        if (filters is null) return mask;
+        
         foreach (var filter in filters)
         {
             switch (filter.FilterType)
