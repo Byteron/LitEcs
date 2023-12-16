@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 namespace LitEcs;
@@ -16,7 +17,7 @@ public sealed class Table
 
     public readonly int Id;
 
-    public readonly SortedSet<StorageType> Types;
+    public readonly ImmutableSortedSet<StorageType> Types;
 
     public Identity[] Identities => _identities;
     public Array[] Storages => _storages;
@@ -30,10 +31,9 @@ public sealed class Table
     readonly Array[] _storages;
 
     readonly Dictionary<StorageType, TableEdge> _edges = new();
-    readonly Dictionary<StorageType, int> _indices = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Table(int id, World world, SortedSet<StorageType> types)
+    public Table(int id, World world, ImmutableSortedSet<StorageType> types)
     {
         _world = world;
 
@@ -42,17 +42,13 @@ public sealed class Table
 
         _identities = new Identity[StartCapacity];
 
+        _storages = new Array[types.Count];
+
         var i = 0;
         foreach (var type in types)
         {
-            _indices.Add(type, i++);
-        }
-
-        _storages = new Array[_indices.Count];
-
-        foreach (var (type, index) in _indices)
-        {
-            _storages[index] = Array.CreateInstance(type.Type, StartCapacity);
+            _storages[i] = Array.CreateInstance(type.Type, StartCapacity);
+            i++;
         }
     }
 
@@ -113,7 +109,7 @@ public sealed class Table
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array GetStorage(StorageType type)
     {
-        return _storages[_indices[type]];
+        return _storages[Types.IndexOf(type)];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,14 +144,17 @@ public sealed class Table
     {
         var newRow = newTable.Add(identity);
 
-        foreach (var (type, oldIndex) in oldTable._indices)
+        var oldIndex = 0;
+        foreach (var type in oldTable.Types)
         {
-            if (!newTable._indices.TryGetValue(type, out var newIndex) || newIndex < 0) continue;
+            var newIndex = newTable.Types.IndexOf(type);
+            if (newIndex < 0) continue;
 
             var oldStorage = oldTable._storages[oldIndex];
             var newStorage = newTable._storages[newIndex];
 
             Array.Copy(oldStorage, oldRow, newStorage, newRow, 1);
+            oldIndex++;
         }
 
         oldTable.Remove(oldRow);

@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 namespace LitEcs;
@@ -8,11 +6,8 @@ namespace LitEcs;
 public sealed class World
 {
     internal EntityRecord[] Meta = new EntityRecord[512];
-
     internal readonly Queue<Identity> UnusedIds = new();
-
     internal readonly List<Table> Tables = new();
-
     internal readonly Dictionary<int, Query> Queries = new();
 
     internal int EntityCount;
@@ -28,7 +23,7 @@ public sealed class World
 
     public World()
     {
-        AddTable(new SortedSet<StorageType> { StorageType.Create<Entity>(Identity.None) });
+        AddTable(ImmutableSortedSet.Create(StorageType.Create<Entity>(Identity.None)));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -116,9 +111,8 @@ public sealed class World
 
         if (newTable == null)
         {
-            var newTypes = oldTable.Types.ToList();
-            newTypes.Add(type);
-            newTable = AddTable(new SortedSet<StorageType>(newTypes));
+            var newTypes = oldTable.Types.Add(type);
+            newTable = AddTable(newTypes);
             oldEdge.Add = newTable;
 
             var newEdge = newTable.GetTableEdge(type);
@@ -174,9 +168,8 @@ public sealed class World
 
         if (newTable == null)
         {
-            var newTypes = oldTable.Types.ToList();
-            newTypes.Remove(type);
-            newTable = AddTable(new SortedSet<StorageType>(newTypes));
+            var newTypes = oldTable.Types.Remove(type);
+            newTable = AddTable(newTypes);
             oldEdge.Remove = newTable;
 
             var newEdge = newTable.GetTableEdge(type);
@@ -353,7 +346,7 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Table AddTable(SortedSet<StorageType> types)
+    Table AddTable(ImmutableSortedSet<StorageType> types)
     {
         var table = new Table(Tables.Count, this, types);
         Tables.Add(table);
