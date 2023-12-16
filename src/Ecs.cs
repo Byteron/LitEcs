@@ -5,21 +5,21 @@ namespace LitEcs;
 public enum FilterType { Has, Not, Any }
 
 public readonly record struct Filter(StorageType StorageType, FilterType FilterType);
+public readonly record struct Set(StorageType StorageType, dynamic Data);
 
 public static class Ecs
 {
     public static World World = new();
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EntityBuilder Spawn()
+    public static Entity Spawn(params Set[] types)
     {
-        return new EntityBuilder(World, World.Spawn());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static EntityBuilder On(Entity entity)
-    {
-        return new EntityBuilder(World, entity);
+        var entity = World.Spawn();
+        foreach (var set in types)
+        {
+            World.AddComponent(set.StorageType, entity.Identity, set.Data);
+        }
+        return entity;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -300,4 +300,5 @@ public static class Ecs
     public static Filter Has<T>() => new(StorageType.Create<T>(), FilterType.Has);
     public static Filter Not<T>() => new(StorageType.Create<T>(), FilterType.Not);
     public static Filter Any<T>() => new(StorageType.Create<T>(), FilterType.Any);
+    public static Set Set<T>(T data = default) where T: struct => new(StorageType.Create<T>(), data);
 }
