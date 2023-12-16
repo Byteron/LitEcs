@@ -24,7 +24,7 @@ public sealed class Table
     public int Count { get; private set; }
     public bool IsEmpty => Count == 0;
 
-    readonly Archetypes _archetypes;
+    readonly World _world;
 
     Identity[] _identities;
     readonly Array[] _storages;
@@ -33,9 +33,9 @@ public sealed class Table
     readonly Dictionary<StorageType, int> _indices = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Table(int id, Archetypes archetypes, SortedSet<StorageType> types)
+    public Table(int id, World world, SortedSet<StorageType> types)
     {
-        _archetypes = archetypes;
+        _world = world;
 
         Id = id;
         Types = types;
@@ -81,7 +81,7 @@ public sealed class Table
                 Array.Copy(storage, Count, storage, row, 1);
             }
 
-            _archetypes.GetEntityMeta(_identities[row]).Row = row;
+            _world.GetEntityMeta(_identities[row]).Row = row;
         }
 
         _identities[Count] = default;

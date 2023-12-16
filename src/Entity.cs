@@ -58,7 +58,7 @@ public readonly struct EntityBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityBuilder Add<T>(Entity target = default) where T : struct
     {
-        World.AddComponent<T>(_entity, target);
+        Ecs.AddComponent<T>(_entity, target);
         return this;
     }
 
@@ -66,21 +66,21 @@ public readonly struct EntityBuilder
     public EntityBuilder Add<T>(Type type) where T : struct
     {
         var typeEntity = World.GetTypeEntity(type);
-        World.AddComponent<T>(_entity, typeEntity);
+        Ecs.AddComponent<T>(_entity, typeEntity);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityBuilder Add<T>(T data) where T : struct
     {
-        World.AddComponent(_entity, data);
+        Ecs.AddComponent(_entity, data);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityBuilder Add<T>(T data, Entity target) where T : struct
     {
-        World.AddComponent(_entity, data, target);
+        Ecs.AddComponent(_entity, data, target);
         return this;
     }
 
@@ -88,21 +88,21 @@ public readonly struct EntityBuilder
     public EntityBuilder Add<T>(T data, Type type) where T : struct
     {
         var typeEntity = World.GetTypeEntity(type);
-        World.AddComponent(_entity, data, typeEntity);
+        Ecs.AddComponent(_entity, data, typeEntity);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityBuilder Remove<T>() where T : struct
     {
-        World.RemoveComponent<T>(_entity);
+        Ecs.RemoveComponent<T>(_entity);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EntityBuilder Remove<T>(Entity target) where T : struct
     {
-        World.RemoveComponent<T>(_entity, target);
+        Ecs.RemoveComponent<T>(_entity, target);
         return this;
     }
 
@@ -110,7 +110,7 @@ public readonly struct EntityBuilder
     public EntityBuilder Remove<T>(Type type) where T : struct
     {
         var typeEntity = World.GetTypeEntity(type);
-        World.RemoveComponent<T>(_entity, typeEntity);
+        Ecs.RemoveComponent<T>(_entity, typeEntity);
         return this;
     }
 

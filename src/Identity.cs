@@ -2,13 +2,13 @@ using System.Runtime.CompilerServices;
 
 namespace LitEcs;
 
-public struct EntityMeta
+public struct EntityRecord
 {
     public Identity Identity;
     public int TableId;
     public int Row;
 
-    public EntityMeta(Identity identity, int tableId, int row)
+    public EntityRecord(Identity identity, int tableId, int row)
     {
         Identity = identity;
         TableId = tableId;

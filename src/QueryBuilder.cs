@@ -6,13 +6,13 @@ namespace LitEcs;
 
 public class QueryBuilder
 {
-    internal readonly Archetypes Archetypes;
+    internal readonly World World;
     protected readonly Mask Mask;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes)
+    public QueryBuilder(World world)
     {
-        Archetypes = archetypes;
+        World = world;
         Mask = MaskPool.Get();
     }
 
@@ -27,7 +27,7 @@ public class QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public QueryBuilder Has<T>(Type type)
     {
-        var entity = Archetypes.GetTypeEntity(type);
+        var entity = World.GetTypeEntity(type);
         var typeIndex = StorageType.Create<T>(entity.Identity);
         Mask.Has(typeIndex);
         return this;
@@ -44,7 +44,7 @@ public class QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public QueryBuilder Not<T>(Type type)
     {
-        var entity = Archetypes.GetTypeEntity(type);
+        var entity = World.GetTypeEntity(type);
         var typeIndex = StorageType.Create<T>(entity.Identity);
         Mask.Not(typeIndex);
         return this;
@@ -61,7 +61,7 @@ public class QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public QueryBuilder Any<T>(Type type)
     {
-        var entity = Archetypes.GetTypeEntity(type);
+        var entity = World.GetTypeEntity(type);
         var typeIndex = StorageType.Create<T>(entity.Identity);
         Mask.Any(typeIndex);
         return this;
@@ -71,11 +71,11 @@ public class QueryBuilder
 public sealed class QueryBuilder<C> : QueryBuilder
     where C : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C>();
     }
@@ -119,7 +119,7 @@ public sealed class QueryBuilder<C> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C> Build()
     {
-        return (Query<C>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -127,11 +127,11 @@ public sealed class QueryBuilder<C1, C2> : QueryBuilder
     where C1 : struct
     where C2 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>();
     }
@@ -175,7 +175,7 @@ public sealed class QueryBuilder<C1, C2> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2> Build()
     {
-        return (Query<C1, C2>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -184,11 +184,11 @@ public sealed class QueryBuilder<C1, C2, C3> : QueryBuilder
     where C2 : struct
     where C3 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>();
     }
@@ -232,7 +232,7 @@ public sealed class QueryBuilder<C1, C2, C3> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3> Build()
     {
-        return (Query<C1, C2, C3>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -242,11 +242,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4> : QueryBuilder
     where C3 : struct
     where C4 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>();
     }
@@ -290,7 +290,7 @@ public sealed class QueryBuilder<C1, C2, C3, C4> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4> Build()
     {
-        return (Query<C1, C2, C3, C4>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -301,11 +301,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5> : QueryBuilder
     where C4 : struct
     where C5 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>().Has<C5>();
     }
@@ -349,7 +349,7 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4, C5> Build()
     {
-        return (Query<C1, C2, C3, C4, C5>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4, C5>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -361,11 +361,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6> : QueryBuilder
     where C5 : struct
     where C6 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>().Has<C5>().Has<C6>();
     }
@@ -409,7 +409,7 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4, C5, C6> Build()
     {
-        return (Query<C1, C2, C3, C4, C5, C6>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4, C5, C6>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -422,11 +422,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7> : QueryBuilder
     where C6 : struct
     where C7 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>().Has<C5>().Has<C6>().Has<C7>();
     }
@@ -470,7 +470,7 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4, C5, C6, C7> Build()
     {
-        return (Query<C1, C2, C3, C4, C5, C6, C7>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4, C5, C6, C7>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -484,11 +484,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8> : QueryBuilder
     where C7 : struct
     where C8 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7, C8>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>().Has<C5>().Has<C6>().Has<C7>().Has<C8>();
     }
@@ -532,7 +532,7 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8> : QueryBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4, C5, C6, C7, C8> Build()
     {
-        return (Query<C1, C2, C3, C4, C5, C6, C7, C8>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4, C5, C6, C7, C8>)World.GetQuery(Mask, CreateQuery);
     }
 }
 
@@ -547,11 +547,11 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8, C9> : QueryBuil
     where C8 : struct
     where C9 : struct
 {
-    static readonly Func<Archetypes, Mask, List<Table>, Query> CreateQuery =
+    static readonly Func<World, Mask, List<Table>, Query> CreateQuery =
         (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>(archetypes, mask, matchingTables);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public QueryBuilder(Archetypes archetypes) : base(archetypes)
+    public QueryBuilder(World world) : base(world)
     {
         Has<C1>().Has<C2>().Has<C3>().Has<C4>().Has<C5>().Has<C6>().Has<C7>().Has<C8>().Has<C9>();
     }
@@ -595,6 +595,6 @@ public sealed class QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8, C9> : QueryBuil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> Build()
     {
-        return (Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>)Archetypes.GetQuery(Mask, CreateQuery);
+        return (Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>)World.GetQuery(Mask, CreateQuery);
     }
 }

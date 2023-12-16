@@ -9,22 +9,22 @@ public class Query
 {
     public readonly List<Table> Tables;
 
-    internal readonly Archetypes Archetypes;
+    internal readonly World World;
     internal readonly Mask Mask;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables)
+    public Query(World world, Mask mask, List<Table> tables)
     {
         Tables = tables;
-        Archetypes = archetypes;
+        World = world;
         Mask = mask;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Has(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         return Tables.Contains(table);
     }
 
@@ -38,22 +38,22 @@ public class Query
 public class Query<C> : Query
     where C : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref C Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var storage = table.GetStorage<C>(Identity.None);
         return ref storage[meta.Row];
     }
 
     public void Run(Action<int, C[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -66,12 +66,12 @@ public class Query<C> : Query
             action(table.Count, s);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -84,7 +84,7 @@ public class Query<C> : Query
             action(table.Count, s);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -92,15 +92,15 @@ public class Query<C1, C2> : Query
     where C1 : struct
     where C2 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var storage1 = table.GetStorage<C1>(Identity.None);
         var storage2 = table.GetStorage<C2>(Identity.None);
         return new RefValueTuple<C1, C2>(ref storage1[meta.Row], ref storage2[meta.Row]);
@@ -108,7 +108,7 @@ public class Query<C1, C2> : Query
 
     public void Run(Action<int, C1[], C2[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -122,12 +122,12 @@ public class Query<C1, C2> : Query
             action(table.Count, s1, s2);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -141,7 +141,7 @@ public class Query<C1, C2> : Query
             action(table.Count, s1, s2);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -150,15 +150,15 @@ public class Query<C1, C2, C3> : Query
     where C2 : struct
     where C3 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var storage1 = table.GetStorage<C1>(Identity.None);
         var storage2 = table.GetStorage<C2>(Identity.None);
         var storage3 = table.GetStorage<C3>(Identity.None);
@@ -168,7 +168,7 @@ public class Query<C1, C2, C3> : Query
 
     public void Run(Action<int, C1[], C2[], C3[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -183,12 +183,12 @@ public class Query<C1, C2, C3> : Query
             action(table.Count, s1, s2, s3);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -203,7 +203,7 @@ public class Query<C1, C2, C3> : Query
             action(table.Count, s1, s2, s3);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -213,15 +213,15 @@ public class Query<C1, C2, C3, C4> : Query
     where C3 : struct
     where C4 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -232,7 +232,7 @@ public class Query<C1, C2, C3, C4> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -248,12 +248,12 @@ public class Query<C1, C2, C3, C4> : Query
             action(table.Count, s1, s2, s3, s4);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -269,7 +269,7 @@ public class Query<C1, C2, C3, C4> : Query
             action(table.Count, s1, s2, s3, s4);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -280,15 +280,15 @@ public class Query<C1, C2, C3, C4, C5> : Query
     where C4 : struct
     where C5 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -300,7 +300,7 @@ public class Query<C1, C2, C3, C4, C5> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -317,12 +317,12 @@ public class Query<C1, C2, C3, C4, C5> : Query
             action(table.Count, s1, s2, s3, s4, s5);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[], C5[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -339,7 +339,7 @@ public class Query<C1, C2, C3, C4, C5> : Query
             action(table.Count, s1, s2, s3, s4, s5);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -351,15 +351,15 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
     where C5 : struct
     where C6 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -373,7 +373,7 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -391,12 +391,12 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[], C5[], C6[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -414,7 +414,7 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -427,15 +427,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
     where C6 : struct
     where C7 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -450,7 +450,7 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -469,12 +469,12 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -493,7 +493,7 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -507,15 +507,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
     where C7 : struct
     where C8 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -531,7 +531,7 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -551,12 +551,12 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -576,7 +576,7 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
 
@@ -591,15 +591,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
     where C8 : struct
     where C9 : struct
 {
-    public Query(Archetypes archetypes, Mask mask, List<Table> tables) : base(archetypes, mask, tables)
+    public Query(World world, Mask mask, List<Table> tables) : base(world, mask, tables)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8, C9> Get(Entity entity)
     {
-        var meta = Archetypes.GetEntityMeta(entity.Identity);
-        var table = Archetypes.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Identity);
+        var table = World.GetTable(meta.TableId);
         var s1 = table.GetStorage<C1>(Identity.None);
         var s2 = table.GetStorage<C2>(Identity.None);
         var s3 = table.GetStorage<C3>(Identity.None);
@@ -616,7 +616,7 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
 
     public void Run(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[], C9[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
         
         for (var t = 0; t < Tables.Count; t++)
         {
@@ -637,12 +637,12 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8, s9);
         }
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
     
     public void RunParallel(Action<int, C1[], C2[], C3[], C4[], C5[], C6[], C7[], C8[], C9[]> action)
     {
-        Archetypes.Lock();
+        World.Lock();
 
         Parallel.For(0, Tables.Count, t =>
         {
@@ -663,6 +663,6 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8, s9);
         });
         
-        Archetypes.Unlock();
+        World.Unlock();
     }
 }
