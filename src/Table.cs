@@ -19,7 +19,7 @@ public sealed class Table
 
     public readonly ImmutableSortedSet<StorageType> Types;
 
-    public Identity[] Identities => _identities;
+    public Entity[] Entities => _entities;
     public Array[] Storages => _storages;
 
     public int Count { get; private set; }
@@ -27,7 +27,7 @@ public sealed class Table
 
     readonly World _world;
 
-    Identity[] _identities;
+    Entity[] _entities;
     readonly Array[] _storages;
 
     readonly Dictionary<StorageType, TableEdge> _edges = new();
@@ -40,7 +40,7 @@ public sealed class Table
         Id = id;
         Types = types;
 
-        _identities = new Identity[StartCapacity];
+        _entities = new Entity[StartCapacity];
 
         _storages = new Array[types.Count];
 
@@ -53,10 +53,10 @@ public sealed class Table
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Add(Identity identity)
+    public int Add(Entity entity)
     {
         EnsureCapacity(Count + 1);
-        _identities[Count] = identity;
+        _entities[Count] = entity;
         return Count++;
     }
 
@@ -70,17 +70,17 @@ public sealed class Table
 
         if (row < Count)
         {
-            _identities[row] = _identities[Count];
+            _entities[row] = _entities[Count];
 
             foreach (var storage in _storages)
             {
                 Array.Copy(storage, Count, storage, row, 1);
             }
 
-            _world.GetEntityMeta(_identities[row]).Row = row;
+            _world.GetEntityMeta(_entities[row].Id).Row = row;
         }
 
-        _identities[Count] = default;
+        _entities[Count] = default;
 
         foreach (var storage in _storages)
         {
@@ -100,7 +100,7 @@ public sealed class Table
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T[] GetStorage<T>(Identity target)
+    public T[] GetStorage<T>(Entity target)
     {
         var type = StorageType.Create<T>(target);
         return (T[])GetStorage(type);
@@ -116,7 +116,7 @@ public sealed class Table
     void EnsureCapacity(int capacity)
     {
         if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity), "minCapacity must be positive");
-        if (capacity <= _identities.Length) return;
+        if (capacity <= _entities.Length) return;
 
         Resize(Math.Max(capacity, StartCapacity) << 1);
     }
@@ -128,7 +128,7 @@ public sealed class Table
         if (length < Count)
             throw new ArgumentOutOfRangeException(nameof(length), "length cannot be smaller than Count");
 
-        Array.Resize(ref _identities, length);
+        Array.Resize(ref _entities, length);
 
         for (var i = 0; i < _storages.Length; i++)
         {
@@ -140,9 +140,9 @@ public sealed class Table
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int MoveEntry(Identity identity, int oldRow, Table oldTable, Table newTable)
+    public static int MoveEntry(Entity entity, int oldRow, Table oldTable, Table newTable)
     {
-        var newRow = newTable.Add(identity);
+        var newRow = newTable.Add(entity);
 
         var oldIndex = 0;
         foreach (var type in oldTable.Types)

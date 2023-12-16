@@ -16,20 +16,20 @@ public struct StorageType : IComparable<StorageType>
         get => TypeIdConverter.Type(Value);
     }
 
-    public Identity Identity
+    public Entity Entity
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => TypeIdConverter.Identity(Value);
+        get => TypeIdConverter.Entity(Value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StorageType Create<T>(Identity identity = default)
+    public static StorageType Create<T>(Entity entity = default)
     {
         return new StorageType()
         {
-            Value = TypeIdConverter.Value<T>(identity),
+            Value = TypeIdConverter.Value<T>(entity),
             Type = typeof(T),
-            IsRelation = identity.Id > 0,
+            IsRelation = entity.Id > 0,
         };
     }
 
@@ -60,7 +60,7 @@ public struct StorageType : IComparable<StorageType>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString()
     {
-        return IsRelation ? $"{GetHashCode()} {Type.Name}::{Identity}" : $"{GetHashCode()} {Type.Name}";
+        return IsRelation ? $"{GetHashCode()} {Type.Name}::{Entity}" : $"{GetHashCode()} {Type.Name}";
     }
 
     public static bool operator ==(StorageType left, StorageType right) => left.Equals(right);
@@ -70,15 +70,15 @@ public struct StorageType : IComparable<StorageType>
 public static class TypeIdConverter
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ulong Value<T>(Identity identity)
+    public static ulong Value<T>(Entity entity)
     {
-        return TypeIdAssigner<T>.Id | (ulong)identity.Generation << 16 | (ulong)identity.Id << 32;
+        return TypeIdAssigner<T>.Id | (ulong)entity.Gen << 16 | (ulong)entity.Id << 32;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Identity Identity(ulong value)
+    public static Entity Entity(ulong value)
     {
-        return new Identity((int)(value >> 32), (ushort)(value >> 16));
+        return new((int)(value >> 32), (short)(value >> 16));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

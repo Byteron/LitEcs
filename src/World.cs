@@ -6,7 +6,7 @@ namespace LitEcs;
 public sealed class World
 {
     internal EntityRecord[] Meta = new EntityRecord[512];
-    internal readonly Queue<Identity> UnusedIds = new();
+    internal readonly Queue<int> UnusedIds = new();
     internal readonly List<Table> Tables = new();
     internal readonly Dictionary<int, Query> Queries = new();
 
@@ -15,7 +15,7 @@ public sealed class World
     readonly List<TableOperation> _tableOperations = new();
     readonly Dictionary<Type, Entity> _typeEntities = new();
     internal readonly Dictionary<StorageType, List<Table>> TablesByType = new();
-    readonly Dictionary<Identity, HashSet<StorageType>> _typesByRelationTarget = new();
+    readonly Dictionary<Entity, HashSet<StorageType>> _typesByRelationTarget = new();
     readonly Dictionary<int, HashSet<StorageType>> _relationsByTypes = new();
 
     int _lockCount;
@@ -23,23 +23,24 @@ public sealed class World
 
     public World()
     {
-        AddTable(ImmutableSortedSet.Create(StorageType.Create<Entity>(Identity.None)));
+        AddTable(ImmutableSortedSet.Create(StorageType.Create<Entity>(Entity.None)));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Entity Spawn()
     {
-        var identity = UnusedIds.Count > 0 ? UnusedIds.Dequeue() : new Identity(++EntityCount);
-
-        var table = Tables[0];
-
-        var row = table.Add(identity);
-
+        var id = UnusedIds.Count > 0 ? UnusedIds.Dequeue() : ++EntityCount;
         if (Meta.Length == EntityCount) Array.Resize(ref Meta, EntityCount << 1);
 
-        Meta[identity.Id] = new EntityRecord(identity, table.Id, row);
+        var table = Tables[0];
+        
+        ref var meta = ref Meta[id];
+        meta.Gen = (short) (-meta.Gen + 1);
 
-        var entity = new Entity(identity);
+        var entity = new Entity(id, meta.Gen);
+        var row = table.Add(entity);
+        meta.Table = 0;
+        meta.Row = row;
         
         var entityStorage = (Entity[])table.Storages[0];
         entityStorage[row] = entity;
@@ -48,28 +49,28 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Despawn(Identity identity)
+    public void Despawn(Entity entity)
     {
-        if (!IsAlive(identity)) return;
+        if (!IsAlive(entity)) return;
 
         if (_isLocked)
         {
-            _tableOperations.Add(new TableOperation { Despawn = true, Identity = identity });
+            _tableOperations.Add(new TableOperation { Despawn = true, Entity = entity });
             return;
         }
 
-        ref var meta = ref Meta[identity.Id];
+        ref var meta = ref Meta[entity.Id];
 
-        var table = Tables[meta.TableId];
+        var table = Tables[meta.Table];
 
         table.Remove(meta.Row);
 
         meta.Row = 0;
-        meta.Identity = Identity.None;
+        meta.Gen = (short)-meta.Gen;
 
-        UnusedIds.Enqueue(identity);
+        UnusedIds.Enqueue(entity.Id);
 
-        if (!_typesByRelationTarget.TryGetValue(identity, out var list))
+        if (!_typesByRelationTarget.TryGetValue(entity, out var list))
         {
             return;
         }
@@ -82,26 +83,26 @@ public sealed class World
             {
                 for (var i = 0; i < tableWithType.Count; i++)
                 {
-                    RemoveComponent(type, tableWithType.Identities[i]);
+                    RemoveComponent(type, tableWithType.Entities[i]);
                 }
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddComponent(StorageType type, Identity identity, object data)
+    public void AddComponent(StorageType type, Entity entity, object data)
     {
-        ref var meta = ref Meta[identity.Id];
-        var oldTable = Tables[meta.TableId];
+        ref var meta = ref Meta[entity.Id];
+        var oldTable = Tables[meta.Table];
 
         if (oldTable.Types.Contains(type))
         {
-            throw new Exception($"Entity {identity} already has component of type {type}");
+            throw new Exception($"Entity {entity} already has component of type {type}");
         }
 
         if (_isLocked)
         {
-            _tableOperations.Add(new TableOperation { Add = true, Identity = identity, Type = type, Data = data });
+            _tableOperations.Add(new TableOperation { Add = true, Entity = entity, Type = type, Data = data });
             return;
         }
 
@@ -119,46 +120,46 @@ public sealed class World
             newEdge.Remove = oldTable;
         }
 
-        var newRow = Table.MoveEntry(identity, meta.Row, oldTable, newTable);
+        var newRow = Table.MoveEntry(entity, meta.Row, oldTable, newTable);
 
         meta.Row = newRow;
-        meta.TableId = newTable.Id;
+        meta.Table = newTable.Id;
 
         var storage = newTable.GetStorage(type);
         storage.SetValue(data, newRow);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref T GetComponent<T>(Identity identity, Identity target)
+    public ref T GetComponent<T>(Entity entity, Entity target)
     {
         var type = StorageType.Create<T>(target);
-        var meta = Meta[identity.Id];
-        var table = Tables[meta.TableId];
+        var meta = Meta[entity.Id];
+        var table = Tables[meta.Table];
         var storage = (T[])table.GetStorage(type);
         return ref storage[meta.Row];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasComponent(StorageType type, Identity identity)
+    public bool HasComponent(StorageType type, Entity entity)
     {
-        var meta = Meta[identity.Id];
-        return meta.Identity != Identity.None && Tables[meta.TableId].Types.Contains(type);
+        var meta = Meta[entity.Id];
+        return meta.Gen > 0 && Tables[meta.Table].Types.Contains(type);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RemoveComponent(StorageType type, Identity identity)
+    public void RemoveComponent(StorageType type, Entity entity)
     {
-        ref var meta = ref Meta[identity.Id];
-        var oldTable = Tables[meta.TableId];
+        ref var meta = ref Meta[entity.Id];
+        var oldTable = Tables[meta.Table];
 
         if (!oldTable.Types.Contains(type))
         {
-            throw new Exception($"cannot remove non-existent component {type.Type.Name} from entity {identity}");
+            throw new Exception($"cannot remove non-existent component {type.Type.Name} from entity {entity}");
         }
 
         if (_isLocked)
         {
-            _tableOperations.Add(new TableOperation { Add = false, Identity = identity, Type = type });
+            _tableOperations.Add(new TableOperation { Add = false, Entity = entity, Type = type });
             return;
         }
 
@@ -178,10 +179,10 @@ public sealed class World
             Tables.Add(newTable);
         }
 
-        var newRow = Table.MoveEntry(identity, meta.Row, oldTable, newTable);
+        var newRow = Table.MoveEntry(entity, meta.Row, oldTable, newTable);
 
         meta.Row = newRow;
-        meta.TableId = newTable.Id;
+        meta.Table = newTable.Id;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -230,19 +231,19 @@ public sealed class World
 
         foreach (var type in mask.HasTypes)
         {
-            if (type.Identity == Identity.Any) hasAnyTarget.Add(type);
+            if (type.Entity == Entity.Any) hasAnyTarget.Add(type);
             else has.Add(type);
         }
 
         foreach (var type in mask.NotTypes)
         {
-            if (type.Identity == Identity.Any) notAnyTarget.Add(type);
+            if (type.Entity == Entity.Any) notAnyTarget.Add(type);
             else not.Add(type);
         }
 
         foreach (var type in mask.AnyTypes)
         {
-            if (type.Identity == Identity.Any) anyAnyTarget.Add(type);
+            if (type.Entity == Entity.Any) anyAnyTarget.Add(type);
             else any.Add(type);
         }
 
@@ -274,15 +275,15 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsAlive(Identity identity)
+    internal bool IsAlive(Entity entity)
     {
-        return Meta[identity.Id].Identity != Identity.None;
+        return Meta[entity.Id].Gen == entity.Gen;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ref EntityRecord GetEntityMeta(Identity identity)
+    internal ref EntityRecord GetEntityMeta(int entityId)
     {
-        return ref Meta[identity.Id];
+        return ref Meta[entityId];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -292,32 +293,32 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Entity GetTarget(StorageType type, Identity identity)
+    internal Entity GetTarget(StorageType type, Entity entity)
     {
-        var meta = Meta[identity.Id];
-        var table = Tables[meta.TableId];
+        var meta = Meta[entity.Id];
+        var table = Tables[meta.Table];
 
         foreach (var storageType in table.Types)
         {
             if (!storageType.IsRelation || storageType.TypeId != type.TypeId) continue;
-            return new Entity(storageType.Identity);
+            return storageType.Entity;
         }
 
         return Entity.None;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Entity[] GetTargets(StorageType type, Identity identity)
+    internal Entity[] GetTargets(StorageType type, Entity entity)
     {
-        var meta = Meta[identity.Id];
-        var table = Tables[meta.TableId];
+        var meta = Meta[entity.Id];
+        var table = Tables[meta.Table];
 
         var list = ListPool<Entity>.Get();
 
         foreach (var storageType in table.Types)
         {
             if (!storageType.IsRelation || storageType.TypeId != type.TypeId) continue;
-            list.Add(new Entity(storageType.Identity));
+            list.Add(storageType.Entity);
         }
 
         var targetEntities = list.ToArray();
@@ -327,10 +328,10 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal (StorageType, object)[] GetComponents(Identity identity)
+    internal (StorageType, object)[] GetComponents(Entity entity)
     {
-        var meta = Meta[identity.Id];
-        var table = Tables[meta.TableId];
+        var meta = Meta[entity.Id];
+        var table = Tables[meta.Table];
 
         var list = ListPool<(StorageType, object)>.Get();
 
@@ -363,10 +364,10 @@ public sealed class World
 
             if (!type.IsRelation) continue;
 
-            if (!_typesByRelationTarget.TryGetValue(type.Identity, out var typeList))
+            if (!_typesByRelationTarget.TryGetValue(type.Entity, out var typeList))
             {
                 typeList = new HashSet<StorageType>();
-                _typesByRelationTarget[type.Identity] = typeList;
+                _typesByRelationTarget[type.Entity] = typeList;
             }
 
             typeList.Add(type);
@@ -407,11 +408,11 @@ public sealed class World
     {
         foreach (var op in _tableOperations)
         {
-            if (!IsAlive(op.Identity)) continue;
+            if (!IsAlive(op.Entity)) continue;
 
-            if (op.Despawn) Despawn(op.Identity);
-            else if (op.Add) AddComponent(op.Type, op.Identity, op.Data);
-            else RemoveComponent(op.Type, op.Identity);
+            if (op.Despawn) Despawn(op.Entity);
+            else if (op.Add) AddComponent(op.Type, op.Entity, op.Data);
+            else RemoveComponent(op.Type, op.Entity);
         }
 
         _tableOperations.Clear();
@@ -439,7 +440,7 @@ public sealed class World
         public bool Despawn;
         public bool Add;
         public StorageType Type;
-        public Identity Identity;
+        public Entity Entity;
         public object Data;
     }
 }

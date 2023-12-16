@@ -23,8 +23,8 @@ public class Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Has(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
         return Tables.Contains(table);
     }
 
@@ -45,9 +45,9 @@ public class Query<C> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref C Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var storage = table.GetStorage<C>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var storage = table.GetStorage<C>(Entity.None);
         return ref storage[meta.Row];
     }
 
@@ -61,7 +61,7 @@ public class Query<C> : Query
 
             if (table.IsEmpty) continue;
 
-            var s = table.GetStorage<C>(Identity.None);
+            var s = table.GetStorage<C>(Entity.None);
 
             action(table.Count, s);
         }
@@ -79,7 +79,7 @@ public class Query<C> : Query
             
             if (table.IsEmpty) return;
 
-            var s = table.GetStorage<C>(Identity.None);
+            var s = table.GetStorage<C>(Entity.None);
             
             action(table.Count, s);
         });
@@ -99,10 +99,10 @@ public class Query<C1, C2> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var storage1 = table.GetStorage<C1>(Identity.None);
-        var storage2 = table.GetStorage<C2>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var storage1 = table.GetStorage<C1>(Entity.None);
+        var storage2 = table.GetStorage<C2>(Entity.None);
         return new RefValueTuple<C1, C2>(ref storage1[meta.Row], ref storage2[meta.Row]);
     }
 
@@ -116,8 +116,8 @@ public class Query<C1, C2> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
 
             action(table.Count, s1, s2);
         }
@@ -135,8 +135,8 @@ public class Query<C1, C2> : Query
 
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
 
             action(table.Count, s1, s2);
         });
@@ -157,11 +157,11 @@ public class Query<C1, C2, C3> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var storage1 = table.GetStorage<C1>(Identity.None);
-        var storage2 = table.GetStorage<C2>(Identity.None);
-        var storage3 = table.GetStorage<C3>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var storage1 = table.GetStorage<C1>(Entity.None);
+        var storage2 = table.GetStorage<C2>(Entity.None);
+        var storage3 = table.GetStorage<C3>(Entity.None);
         return new RefValueTuple<C1, C2, C3>(ref storage1[meta.Row], ref storage2[meta.Row],
             ref storage3[meta.Row]);
     }
@@ -176,9 +176,9 @@ public class Query<C1, C2, C3> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
 
             action(table.Count, s1, s2, s3);
         }
@@ -196,9 +196,9 @@ public class Query<C1, C2, C3> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
             
             action(table.Count, s1, s2, s3);
         });
@@ -220,12 +220,12 @@ public class Query<C1, C2, C3, C4> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row]);
     }
@@ -240,10 +240,10 @@ public class Query<C1, C2, C3, C4> : Query
 
             if (table.IsEmpty) continue;
             
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
 
             action(table.Count, s1, s2, s3, s4);
         }
@@ -261,10 +261,10 @@ public class Query<C1, C2, C3, C4> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4);
         });
@@ -287,13 +287,13 @@ public class Query<C1, C2, C3, C4, C5> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
-        var s5 = table.GetStorage<C5>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
+        var s5 = table.GetStorage<C5>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4, C5>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row]);
     }
@@ -308,11 +308,11 @@ public class Query<C1, C2, C3, C4, C5> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
 
             action(table.Count, s1, s2, s3, s4, s5);
         }
@@ -330,11 +330,11 @@ public class Query<C1, C2, C3, C4, C5> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5);
         });
@@ -358,14 +358,14 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
-        var s5 = table.GetStorage<C5>(Identity.None);
-        var s6 = table.GetStorage<C6>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
+        var s5 = table.GetStorage<C5>(Entity.None);
+        var s6 = table.GetStorage<C6>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4, C5, C6>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
             ref s6[meta.Row]);
@@ -381,12 +381,12 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
 
             action(table.Count, s1, s2, s3, s4, s5, s6);
         }
@@ -404,12 +404,12 @@ public class Query<C1, C2, C3, C4, C5, C6> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5, s6);
         });
@@ -434,15 +434,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
-        var s5 = table.GetStorage<C5>(Identity.None);
-        var s6 = table.GetStorage<C6>(Identity.None);
-        var s7 = table.GetStorage<C7>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
+        var s5 = table.GetStorage<C5>(Entity.None);
+        var s6 = table.GetStorage<C6>(Entity.None);
+        var s7 = table.GetStorage<C7>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
             ref s6[meta.Row], ref s7[meta.Row]);
@@ -458,13 +458,13 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
 
             action(table.Count, s1, s2, s3, s4, s5, s6, s7);
         }
@@ -482,13 +482,13 @@ public class Query<C1, C2, C3, C4, C5, C6, C7> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5, s6, s7);
         });
@@ -514,16 +514,16 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
-        var s5 = table.GetStorage<C5>(Identity.None);
-        var s6 = table.GetStorage<C6>(Identity.None);
-        var s7 = table.GetStorage<C7>(Identity.None);
-        var s8 = table.GetStorage<C8>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
+        var s5 = table.GetStorage<C5>(Entity.None);
+        var s6 = table.GetStorage<C6>(Entity.None);
+        var s7 = table.GetStorage<C7>(Entity.None);
+        var s8 = table.GetStorage<C8>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
             ref s6[meta.Row], ref s7[meta.Row], ref s8[meta.Row]);
@@ -539,14 +539,14 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
 
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
-            var s8 = table.GetStorage<C8>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
 
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8);
         }
@@ -564,14 +564,14 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
-            var s8 = table.GetStorage<C8>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8);
         });
@@ -598,17 +598,17 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8, C9> Get(Entity entity)
     {
-        var meta = World.GetEntityMeta(entity.Identity);
-        var table = World.GetTable(meta.TableId);
-        var s1 = table.GetStorage<C1>(Identity.None);
-        var s2 = table.GetStorage<C2>(Identity.None);
-        var s3 = table.GetStorage<C3>(Identity.None);
-        var s4 = table.GetStorage<C4>(Identity.None);
-        var s5 = table.GetStorage<C5>(Identity.None);
-        var s6 = table.GetStorage<C6>(Identity.None);
-        var s7 = table.GetStorage<C7>(Identity.None);
-        var s8 = table.GetStorage<C8>(Identity.None);
-        var s9 = table.GetStorage<C9>(Identity.None);
+        var meta = World.GetEntityMeta(entity.Id);
+        var table = World.GetTable(meta.Table);
+        var s1 = table.GetStorage<C1>(Entity.None);
+        var s2 = table.GetStorage<C2>(Entity.None);
+        var s3 = table.GetStorage<C3>(Entity.None);
+        var s4 = table.GetStorage<C4>(Entity.None);
+        var s5 = table.GetStorage<C5>(Entity.None);
+        var s6 = table.GetStorage<C6>(Entity.None);
+        var s7 = table.GetStorage<C7>(Entity.None);
+        var s8 = table.GetStorage<C8>(Entity.None);
+        var s9 = table.GetStorage<C9>(Entity.None);
         return new RefValueTuple<C1, C2, C3, C4, C5, C6, C7, C8, C9>(ref s1[meta.Row], ref s2[meta.Row],
             ref s3[meta.Row], ref s4[meta.Row], ref s5[meta.Row],
             ref s6[meta.Row], ref s7[meta.Row], ref s8[meta.Row], ref s9[meta.Row]);
@@ -624,15 +624,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
             
             if (table.IsEmpty) continue;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
-            var s8 = table.GetStorage<C8>(Identity.None);
-            var s9 = table.GetStorage<C9>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
+            var s9 = table.GetStorage<C9>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8, s9);
         }
@@ -650,15 +650,15 @@ public class Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> : Query
             
             if (table.IsEmpty) return;
 
-            var s1 = table.GetStorage<C1>(Identity.None);
-            var s2 = table.GetStorage<C2>(Identity.None);
-            var s3 = table.GetStorage<C3>(Identity.None);
-            var s4 = table.GetStorage<C4>(Identity.None);
-            var s5 = table.GetStorage<C5>(Identity.None);
-            var s6 = table.GetStorage<C6>(Identity.None);
-            var s7 = table.GetStorage<C7>(Identity.None);
-            var s8 = table.GetStorage<C8>(Identity.None);
-            var s9 = table.GetStorage<C9>(Identity.None);
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
+            var s9 = table.GetStorage<C9>(Entity.None);
             
             action(table.Count, s1, s2, s3, s4, s5, s6, s7, s8, s9);
         });
