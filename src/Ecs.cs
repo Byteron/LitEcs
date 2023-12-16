@@ -101,9 +101,9 @@ public static class Ecs
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Ref<T> GetComponent<T>(Entity entity, Entity target) where T : struct
+    public static ref T GetComponent<T>(Entity entity, Entity target) where T : struct
     {
-        return new Ref<T>(ref World.GetComponent<T>(entity.Identity, target.Identity));
+        return ref World.GetComponent<T>(entity.Identity, target.Identity);
     }
         
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
