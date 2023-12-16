@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Dynamic;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace LitEcs;
 
@@ -34,7 +31,7 @@ public static class Ecs
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void DespawnAllWith<T>() where T : struct
     {
-        var query = Query<Entity>().Has<T>().Build();
+        var query = Query<Entity>(Has<T>());
         
         query.Run((count, entities) =>
         {
@@ -152,54 +149,106 @@ public static class Ecs
         return World.GetTargets(type, entity.Identity);
     }
 
-    public static QueryBuilder<Entity> Query()
+    public static Query<Entity> Query()
     {
-        return new QueryBuilder<Entity>(World);
+        return Query<Entity>();
     }
 
-    public static QueryBuilder<C> Query<C>() where C : struct
+    internal static Mask GetMask(Filter[] filters)
     {
-        return new QueryBuilder<C>(World);
+        var mask = MaskPool.Get();
+        foreach (var filter in filters)
+        {
+            switch (filter.FilterType)
+            {
+                case FilterType.Has: mask.HasTypes.Add(filter.StorageType);
+                    break;
+                case FilterType.Not: mask.NotTypes.Add(filter.StorageType);
+                    break;
+                case FilterType.Any: mask.AnyTypes.Add(filter.StorageType);
+                    break;
+            }
+        }
+
+        return mask;
+    }
+    
+    public static Query<C> Query<C>(params Filter[] filters) where C : struct
+    {
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C>());
+        return (Query<C>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2> Query<C1, C2>() where C1 : struct where C2 : struct
+    public static Query<C1, C2> Query<C1, C2>(params Filter[] filters) where C1 : struct where C2 : struct
     {
-        return new QueryBuilder<C1, C2>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        return (Query<C1, C2>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3> Query<C1, C2, C3>() where C1 : struct where C2 : struct where C3 : struct
+    public static Query<C1, C2, C3> Query<C1, C2, C3>(params Filter[] filters) where C1 : struct where C2 : struct where C3 : struct
     {
-        return new QueryBuilder<C1, C2, C3>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        return (Query<C1, C2, C3>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3, C4> Query<C1, C2, C3, C4>() where C1 : struct
+    public static Query<C1, C2, C3, C4> Query<C1, C2, C3, C4>(params Filter[] filters) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
     {
-        return new QueryBuilder<C1, C2, C3, C4>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        return (Query<C1, C2, C3, C4>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3, C4, C5> Query<C1, C2, C3, C4, C5>() where C1 : struct
+    public static Query<C1, C2, C3, C4, C5> Query<C1, C2, C3, C4, C5>(params Filter[] filters) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
         where C5 : struct
     {
-        return new QueryBuilder<C1, C2, C3, C4, C5>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        mask.Has(StorageType.Create<C5>());
+        return (Query<C1, C2, C3, C4, C5>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3, C4, C5, C6> Query<C1, C2, C3, C4, C5, C6>() where C1 : struct
+    public static Query<C1, C2, C3, C4, C5, C6> Query<C1, C2, C3, C4, C5, C6>(params Filter[] filters) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
         where C5 : struct
         where C6 : struct
     {
-        return new QueryBuilder<C1, C2, C3, C4, C5, C6>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        mask.Has(StorageType.Create<C5>());
+        mask.Has(StorageType.Create<C6>());
+        return (Query<C1, C2, C3, C4, C5, C6>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3, C4, C5, C6, C7> Query<C1, C2, C3, C4, C5, C6, C7>() where C1 : struct
+    public static Query<C1, C2, C3, C4, C5, C6, C7> Query<C1, C2, C3, C4, C5, C6, C7>(params Filter[] filters) where C1 : struct
         where C2 : struct
         where C3 : struct
         where C4 : struct
@@ -207,10 +256,19 @@ public static class Ecs
         where C6 : struct
         where C7 : struct
     {
-        return new QueryBuilder<C1, C2, C3, C4, C5, C6, C7>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        mask.Has(StorageType.Create<C5>());
+        mask.Has(StorageType.Create<C6>());
+        mask.Has(StorageType.Create<C7>());
+        return (Query<C1, C2, C3, C4, C5, C6, C7>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7>(archetypes, mask, matchingTables));
     }
 
-    public static QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8> Query<C1, C2, C3, C4, C5, C6, C7, C8>()
+    public static Query<C1, C2, C3, C4, C5, C6, C7, C8> Query<C1, C2, C3, C4, C5, C6, C7, C8>(params Filter[] filters)
         where C1 : struct
         where C2 : struct
         where C3 : struct
@@ -220,7 +278,17 @@ public static class Ecs
         where C7 : struct
         where C8 : struct
     {
-        return new QueryBuilder<C1, C2, C3, C4, C5, C6, C7, C8>(World);
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        mask.Has(StorageType.Create<C5>());
+        mask.Has(StorageType.Create<C6>());
+        mask.Has(StorageType.Create<C7>());
+        mask.Has(StorageType.Create<C8>());
+        return (Query<C1, C2, C3, C4, C5, C6, C7, C8>)World.GetQuery(mask, 
+            (archetypes, mask, matchingTables) => new Query<C1, C2, C3, C4, C5, C6, C7, C8>(archetypes, mask, matchingTables));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -228,35 +296,8 @@ public static class Ecs
     {
         return World.GetTypeEntity(type);
     }
-
-    // public static Query Query(params Filter[] filters)
-    // {
-    //     foreach (var filter in filters)
-    //     {
-    //         switch (filter.FilterType)
-    //         {
-    //             case FilterType.Has: Console.WriteLine("Has: " + filter.StorageType.Type);
-    //                 break;
-    //             case FilterType.Not: Console.WriteLine("Not: " + filter.StorageType.Type);
-    //                 break;
-    //             case FilterType.Any: Console.WriteLine("Any: " + filter.StorageType.Type);
-    //                 break;
-    //         }
-    //     }
-    //     return new();
-    // }
-    //
-    // public static void Example()
-    // {
-    //     var query = Query<Position, Velocity>(Has<Tag>(), Not<Enemy>());
-    //     foreach (var (pos, vel) in query)
-    //     {
-    //         
-    //     }
-    // }
-    //
-    // public static Filter Has<T>() => new(StorageType.Create<T>(), FilterType.Has);
-    // public static Filter Not<T>() => new(StorageType.Create<T>(), FilterType.Not);
-    // public static Filter Any<T>() => new(StorageType.Create<T>(), FilterType.Any);
-
+    
+    public static Filter Has<T>() => new(StorageType.Create<T>(), FilterType.Has);
+    public static Filter Not<T>() => new(StorageType.Create<T>(), FilterType.Not);
+    public static Filter Any<T>() => new(StorageType.Create<T>(), FilterType.Any);
 }
