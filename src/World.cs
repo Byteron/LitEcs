@@ -255,7 +255,7 @@ public sealed class World
 
         foreach (var type in hasAnyTarget)
         {
-            if (!_relationsByTypes.TryGetValue(type.TypeId, out var list))
+            if (!_relationsByTypes.TryGetValue(type.Id, out var list))
             {
                 matchesRelation = false;
                 continue;
@@ -300,7 +300,7 @@ public sealed class World
 
         foreach (var storageType in table.Types)
         {
-            if (!storageType.IsRelation || storageType.TypeId != type.TypeId) continue;
+            if (!storageType.IsRelation || storageType.Id != type.Id) continue;
             return storageType.Entity;
         }
 
@@ -317,7 +317,7 @@ public sealed class World
 
         foreach (var storageType in table.Types)
         {
-            if (!storageType.IsRelation || storageType.TypeId != type.TypeId) continue;
+            if (!storageType.IsRelation || storageType.Id != type.Id) continue;
             list.Add(storageType.Entity);
         }
 
@@ -372,10 +372,10 @@ public sealed class World
 
             typeList.Add(type);
 
-            if (!_relationsByTypes.TryGetValue(type.TypeId, out var relationTypeSet))
+            if (!_relationsByTypes.TryGetValue(type.Id, out var relationTypeSet))
             {
                 relationTypeSet = new HashSet<StorageType>();
-                _relationsByTypes[type.TypeId] = relationTypeSet;
+                _relationsByTypes[type.Id] = relationTypeSet;
             }
 
             relationTypeSet.Add(type);
