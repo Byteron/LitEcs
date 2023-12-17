@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.CompilerServices;
-
 namespace LitEcs;
 
 public readonly record struct Entity(int Id, short Gen)
