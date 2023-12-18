@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace LitEcs;
 
@@ -38,20 +39,6 @@ public static class Ecs
     public static void Despawn(Entity entity)
     {
         World.Despawn(entity);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void DespawnAllWith<T>() where T : struct
-    {
-        var query = Query<Entity, T>();
-        
-        query.Run((count, entities, ts) =>
-        {
-            for (var i = 0; i < count; i++)
-            {
-                Despawn(entities[i]);
-            }
-        });
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -146,6 +133,268 @@ public static class Ecs
     {
         var type = StorageType.Create<T>(Entity.None);
         return World.GetTargets(type, entity);
+    }
+    
+    public static void Run<T>(T system) where T: ISystem
+    {
+        system.Run();
+    }
+    
+    public static void Run<T, C1>(T system, Filter[]? filters = null) where T: ISystem<C1> where C1: struct
+    {
+        var query = Query<C1>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+    
+            system.Run(table.Count, s1);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2> where C1: struct where C2: struct
+    {
+        var query = Query<C1, C2>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+    
+            system.Run(table.Count, s1, s2);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+    {
+        var query = Query<C1, C2, C3>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+    {
+        var query = Query<C1, C2, C3, C4>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4, C5>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4, C5>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+        where C5: struct
+    {
+        var query = Query<C1, C2, C3, C4, C5>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4, s5);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4, C5, C6>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4, C5, C6>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+        where C5: struct
+        where C6: struct
+    {
+        var query = Query<C1, C2, C3, C4, C5, C6>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4, s5, s6);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4, C5, C6, C7>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4, C5, C6, C7>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+        where C5: struct
+        where C6: struct
+        where C7: struct
+    {
+        var query = Query<C1, C2, C3, C4, C5, C6, C7>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4, s5, s6, s7);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4, C5, C6, C7, C8>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4, C5, C6, C7, C8>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+        where C5: struct
+        where C6: struct
+        where C7: struct
+        where C8: struct
+    {
+        var query = Query<C1, C2, C3, C4, C5, C6, C7, C8>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4, s5, s6, s7, s8);
+        }
+    
+        World.Unlock();
+    }
+    
+    public static void Run<T, C1, C2, C3, C4, C5, C6, C7, C8, C9>(T system, Filter[]? filters = null)
+        where T: ISystem<C1, C2, C3, C4, C5, C6, C7, C8, C9>
+        where C1: struct
+        where C2: struct
+        where C3: struct
+        where C4: struct
+        where C5: struct
+        where C6: struct
+        where C7: struct
+        where C8: struct
+        where C9: struct
+    {
+        var query = Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>(filters);
+        
+        World.Lock();
+        
+        for (var t = 0; t < query.Tables.Count; t++)
+        {
+            var table = query.Tables[t];
+            if (table.IsEmpty) continue;
+    
+            var s1 = table.GetStorage<C1>(Entity.None);
+            var s2 = table.GetStorage<C2>(Entity.None);
+            var s3 = table.GetStorage<C3>(Entity.None);
+            var s4 = table.GetStorage<C4>(Entity.None);
+            var s5 = table.GetStorage<C5>(Entity.None);
+            var s6 = table.GetStorage<C6>(Entity.None);
+            var s7 = table.GetStorage<C7>(Entity.None);
+            var s8 = table.GetStorage<C8>(Entity.None);
+            var s9 = table.GetStorage<C9>(Entity.None);
+    
+            system.Run(table.Count, s1, s2, s3, s4, s5, s6, s7, s8, s9);
+        }
+    
+        World.Unlock();
     }
 
     public static Query<Entity> Query()
@@ -269,6 +518,30 @@ public static class Ecs
         mask.Has(StorageType.Create<C8>());
         return (Query<C1, C2, C3, C4, C5, C6, C7, C8>)World.GetQuery(mask, 
             (w, m, t) => new Query<C1, C2, C3, C4, C5, C6, C7, C8>(w, m, t));
+    }
+    
+    public static Query<C1, C2, C3, C4, C5, C6, C7, C8, C9> Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>(Filter[]? filters = null)
+        where C1 : struct
+        where C2 : struct
+        where C3 : struct
+        where C4 : struct
+        where C5 : struct
+        where C6 : struct
+        where C7 : struct
+        where C8 : struct
+        where C9 : struct
+    {
+        var mask = GetMask(filters);
+        mask.Has(StorageType.Create<C1>());
+        mask.Has(StorageType.Create<C2>());
+        mask.Has(StorageType.Create<C3>());
+        mask.Has(StorageType.Create<C4>());
+        mask.Has(StorageType.Create<C5>());
+        mask.Has(StorageType.Create<C6>());
+        mask.Has(StorageType.Create<C7>());
+        mask.Has(StorageType.Create<C8>());
+        return (Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>)World.GetQuery(mask, 
+            (w, m, t) => new Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>(w, m, t));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

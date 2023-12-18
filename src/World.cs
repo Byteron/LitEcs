@@ -63,7 +63,7 @@ public sealed class World
 
         var table = Tables[meta.Table];
 
-        table.Remove(meta.Row);
+        Remove(table, meta.Row);
 
         meta.Row = 0;
         meta.Gen = (short)-meta.Gen;
@@ -120,7 +120,7 @@ public sealed class World
             newEdge.Remove = oldTable;
         }
 
-        var newRow = Table.MoveEntry(entity, meta.Row, oldTable, newTable);
+        var newRow = MoveEntry(oldTable, newTable, entity, meta.Row);
 
         meta.Row = newRow;
         meta.Table = newTable.Id;
@@ -179,12 +179,63 @@ public sealed class World
             Tables.Add(newTable);
         }
 
-        var newRow = Table.MoveEntry(entity, meta.Row, oldTable, newTable);
+        var newRow = MoveEntry(oldTable, newTable, entity, meta.Row);
 
         meta.Row = newRow;
         meta.Table = newTable.Id;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int MoveEntry(Table oldTable, Table newTable, Entity entity, int oldRow)
+    {
+        var newRow = newTable.Add(entity);
+
+        var oldIndex = 0;
+        foreach (var type in oldTable.Types)
+        {
+            var newIndex = newTable.Types.IndexOf(type);
+            if (newIndex < 0) continue;
+
+            var oldStorage = oldTable.Storages[oldIndex];
+            var newStorage = newTable.Storages[newIndex];
+
+            Array.Copy(oldStorage, oldRow, newStorage, newRow, 1);
+            oldIndex++;
+        }
+
+        Remove(oldTable, oldRow);
+
+        return newRow;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Remove(Table table, int row)
+    {
+        if (row >= table.Count)
+            throw new ArgumentOutOfRangeException(nameof(row), "row cannot be greater or equal to count");
+
+        table.Count--;
+
+        if (row < table.Count)
+        {
+            table.Entities[row] = table.Entities[table.Count];
+
+            foreach (var storage in table.Storages)
+            {
+                Array.Copy(storage, table.Count, storage, row, 1);
+            }
+
+            GetEntityMeta(table.Entities[row].Id).Row = row;
+        }
+
+        table.Entities[table.Count] = default;
+
+        foreach (var storage in table.Storages)
+        {
+            Array.Clear(storage, table.Count, 1);
+        }
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Query GetQuery(Mask mask, Func<World, Mask, List<Table>, Query> createQuery)
     {
@@ -349,7 +400,7 @@ public sealed class World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Table AddTable(ImmutableSortedSet<StorageType> types)
     {
-        var table = new Table(Tables.Count, this, types);
+        var table = new Table(Tables.Count, types);
         Tables.Add(table);
 
         foreach (var type in types)

@@ -17,35 +17,27 @@ public sealed class Table
 
     public readonly ImmutableSortedSet<StorageType> Types;
 
-    public Entity[] Entities => _entities;
-    public Array[] Storages => _storages;
-
-    public int Count { get; private set; }
+    public int Count { get; internal set; }
     public bool IsEmpty => Count == 0;
 
-    readonly World _world;
-
-    Entity[] _entities;
-    readonly Array[] _storages;
+    internal Entity[] Entities;
+    internal readonly Array[] Storages;
 
     readonly Dictionary<StorageType, TableEdge> _edges = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Table(int id, World world, ImmutableSortedSet<StorageType> types)
+    public Table(int id, ImmutableSortedSet<StorageType> types)
     {
-        _world = world;
-
         Id = id;
         Types = types;
 
-        _entities = new Entity[StartCapacity];
-
-        _storages = new Array[types.Count];
+        Entities = new Entity[StartCapacity];
+        Storages = new Array[types.Count];
 
         var i = 0;
         foreach (var type in types)
         {
-            _storages[i] = Array.CreateInstance(type.Type, StartCapacity);
+            Storages[i] = Array.CreateInstance(type.Type, StartCapacity);
             i++;
         }
     }
@@ -54,36 +46,8 @@ public sealed class Table
     public int Add(Entity entity)
     {
         EnsureCapacity(Count + 1);
-        _entities[Count] = entity;
+        Entities[Count] = entity;
         return Count++;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Remove(int row)
-    {
-        if (row >= Count)
-            throw new ArgumentOutOfRangeException(nameof(row), "row cannot be greater or equal to count");
-
-        Count--;
-
-        if (row < Count)
-        {
-            _entities[row] = _entities[Count];
-
-            foreach (var storage in _storages)
-            {
-                Array.Copy(storage, Count, storage, row, 1);
-            }
-
-            _world.GetEntityMeta(_entities[row].Id).Row = row;
-        }
-
-        _entities[Count] = default;
-
-        foreach (var storage in _storages)
-        {
-            Array.Clear(storage, Count, 1);
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -107,14 +71,14 @@ public sealed class Table
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array GetStorage(StorageType type)
     {
-        return _storages[Types.IndexOf(type)];
+        return Storages[Types.IndexOf(type)];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void EnsureCapacity(int capacity)
     {
         if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity), "minCapacity must be positive");
-        if (capacity <= _entities.Length) return;
+        if (capacity <= Entities.Length) return;
 
         Resize(Math.Max(capacity, StartCapacity) << 1);
     }
@@ -126,38 +90,15 @@ public sealed class Table
         if (length < Count)
             throw new ArgumentOutOfRangeException(nameof(length), "length cannot be smaller than Count");
 
-        Array.Resize(ref _entities, length);
+        Array.Resize(ref Entities, length);
 
-        for (var i = 0; i < _storages.Length; i++)
+        for (var i = 0; i < Storages.Length; i++)
         {
-            var elementType = _storages[i].GetType().GetElementType()!;
+            var elementType = Storages[i].GetType().GetElementType()!;
             var newStorage = Array.CreateInstance(elementType, length);
-            Array.Copy(_storages[i], newStorage, Math.Min(_storages[i].Length, length));
-            _storages[i] = newStorage;
+            Array.Copy(Storages[i], newStorage, Math.Min(Storages[i].Length, length));
+            Storages[i] = newStorage;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int MoveEntry(Entity entity, int oldRow, Table oldTable, Table newTable)
-    {
-        var newRow = newTable.Add(entity);
-
-        var oldIndex = 0;
-        foreach (var type in oldTable.Types)
-        {
-            var newIndex = newTable.Types.IndexOf(type);
-            if (newIndex < 0) continue;
-
-            var oldStorage = oldTable._storages[oldIndex];
-            var newStorage = newTable._storages[newIndex];
-
-            Array.Copy(oldStorage, oldRow, newStorage, newRow, 1);
-            oldIndex++;
-        }
-
-        oldTable.Remove(oldRow);
-
-        return newRow;
     }
 
     public override string ToString()
