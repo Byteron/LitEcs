@@ -30,7 +30,7 @@ public static class Ecs
         var entity = World.Spawn();
         foreach (var set in types)
         {
-            World.AddComponent(set.StorageType, entity, set.Data);
+            World.Set(set.StorageType, entity, set.Data);
         }
         return entity;
     }
@@ -48,37 +48,37 @@ public static class Ecs
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref T GetComponent<T>(Entity entity) where T : struct
+    public static ref T Get<T>(Entity entity) where T : struct
     {
-        return ref World.GetComponent<T>(entity, Entity.None);
+        return ref World.Get<T>(entity, Entity.None);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasComponent<T>(Entity entity) where T : struct
+    public static bool Has<T>(Entity entity) where T : struct
     {
         var type = StorageType.Create<T>(Entity.None);
-        return World.HasComponent(type, entity);
+        return World.Has(type, entity);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AddComponent<T>(Entity entity) where T : struct
+    public static void Set<T>(Entity entity) where T : struct
     {
         var type = StorageType.Create<T>(Entity.None);
-        World.AddComponent(type, entity, new T());
+        World.Set(type, entity, new T());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AddComponent<T>(Entity entity, T component) where T : struct
+    public static void Set<T>(Entity entity, T component) where T : struct
     {
         var type = StorageType.Create<T>(Entity.None);
-        World.AddComponent(type, entity, component);
+        World.Set(type, entity, component);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RemoveComponent<T>(Entity entity) where T : struct
+    public static void Remove<T>(Entity entity) where T : struct
     {
         var type = StorageType.Create<T>(Entity.None);
-        World.RemoveComponent(type, entity);
+        World.Remove(type, entity);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -88,37 +88,37 @@ public static class Ecs
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref T GetComponent<T>(Entity entity, Entity target) where T : struct
+    public static ref T Get<T>(Entity entity, Entity target) where T : struct
     {
-        return ref World.GetComponent<T>(entity, target);
+        return ref World.Get<T>(entity, target);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool HasComponent<T>(Entity entity, Entity target) where T : struct
+    public static bool Has<T>(Entity entity, Entity target) where T : struct
     {
         var type = StorageType.Create<T>(target);
-        return World.HasComponent(type, entity);
+        return World.Has(type, entity);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AddComponent<T>(Entity entity, Entity target) where T : struct
+    public static void Set<T>(Entity entity, Entity target) where T : struct
     {
         var type = StorageType.Create<T>(entity);
-        World.AddComponent(type, entity, new T());
+        World.Set(type, entity, new T());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AddComponent<T>(Entity entity, T component, Entity target) where T : struct
+    public static void Set<T>(Entity entity, T component, Entity target) where T : struct
     {
         var type = StorageType.Create<T>(entity);
-        World.AddComponent(type, entity, component);
+        World.Set(type, entity, component);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void RemoveComponent<T>(Entity entity, Entity target) where T : struct
+    public static void Remove<T>(Entity entity, Entity target) where T : struct
     {
         var type = StorageType.Create<T>(entity);
-        World.RemoveComponent(type, entity);
+        World.Remove(type, entity);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -542,12 +542,6 @@ public static class Ecs
         mask.Has(StorageType.Create<C8>());
         return (Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>)World.GetQuery(mask, 
             (w, m, t) => new Query<C1, C2, C3, C4, C5, C6, C7, C8, C9>(w, m, t));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Entity GetTypeEntity(Type type)
-    {
-        return World.GetTypeEntity(type);
     }
     
     private static Mask GetMask(Filter[]? filters)

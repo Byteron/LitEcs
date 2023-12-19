@@ -13,7 +13,6 @@ public sealed class World
     internal int EntityCount;
 
     readonly List<TableOperation> _tableOperations = new();
-    readonly Dictionary<Type, Entity> _typeEntities = new();
     internal readonly Dictionary<StorageType, List<Table>> TablesByType = new();
     readonly Dictionary<Entity, HashSet<StorageType>> _typesByRelationTarget = new();
     readonly Dictionary<int, HashSet<StorageType>> _relationsByTypes = new();
@@ -93,14 +92,14 @@ public sealed class World
             {
                 for (var i = 0; i < tableWithType.Count; i++)
                 {
-                    RemoveComponent(type, tableWithType.Entities[i]);
+                    Remove(type, tableWithType.Entities[i]);
                 }
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddComponent(StorageType type, Entity entity, object data)
+    public void Set(StorageType type, Entity entity, object data)
     {
         ref var meta = ref Meta[entity.Id];
         var oldTable = Tables[meta.Table];
@@ -112,7 +111,7 @@ public sealed class World
 
         if (_isLocked)
         {
-            _tableOperations.Add(new TableOperation { Add = true, Entity = entity, Type = type, Data = data });
+            _tableOperations.Add(new TableOperation { Set = true, Entity = entity, Type = type, Data = data });
             return;
         }
 
@@ -140,7 +139,7 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref T GetComponent<T>(Entity entity, Entity target)
+    public ref T Get<T>(Entity entity, Entity target)
     {
         var type = StorageType.Create<T>(target);
         var meta = Meta[entity.Id];
@@ -150,14 +149,14 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasComponent(StorageType type, Entity entity)
+    public bool Has(StorageType type, Entity entity)
     {
         var meta = Meta[entity.Id];
         return meta.Gen > 0 && Tables[meta.Table].Types.Contains(type);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RemoveComponent(StorageType type, Entity entity)
+    public void Remove(StorageType type, Entity entity)
     {
         ref var meta = ref Meta[entity.Id];
         var oldTable = Tables[meta.Table];
@@ -169,7 +168,7 @@ public sealed class World
 
         if (_isLocked)
         {
-            _tableOperations.Add(new TableOperation { Add = false, Entity = entity, Type = type });
+            _tableOperations.Add(new TableOperation { Set = false, Entity = entity, Type = type });
             return;
         }
 
@@ -219,7 +218,7 @@ public sealed class World
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Remove(Table table, int row)
+    internal void Remove(Table table, int row)
     {
         if (row >= table.Count)
             throw new ArgumentOutOfRangeException(nameof(row), "row cannot be greater or equal to count");
@@ -451,20 +450,6 @@ public sealed class World
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Entity GetTypeEntity(Type type)
-    {
-        if (!_typeEntities.TryGetValue(type, out var entity))
-        {
-            entity = Spawn();
-            _typeEntities.Add(type, entity);
-        }
-
-        ;
-
-        return entity;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void ApplyTableOperations()
     {
         foreach (var op in _tableOperations)
@@ -472,8 +457,8 @@ public sealed class World
             if (!IsAlive(op.Entity)) continue;
 
             if (op.Despawn) Despawn(op.Entity);
-            else if (op.Add) AddComponent(op.Type, op.Entity, op.Data);
-            else RemoveComponent(op.Type, op.Entity);
+            else if (op.Set) Set(op.Type, op.Entity, op.Data);
+            else Remove(op.Type, op.Entity);
         }
 
         _tableOperations.Clear();
@@ -499,7 +484,7 @@ public sealed class World
     struct TableOperation
     {
         public bool Despawn;
-        public bool Add;
+        public bool Set;
         public StorageType Type;
         public Entity Entity;
         public object Data;
