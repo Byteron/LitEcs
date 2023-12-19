@@ -6,7 +6,7 @@ namespace LitEcs;
 public sealed class World
 {
     internal EntityRecord[] Meta = new EntityRecord[512];
-    internal readonly Queue<int> UnusedIds = new();
+    internal readonly List<int> UnusedIds = new();
     internal readonly List<Table> Tables = new();
     internal readonly Dictionary<int, Query> Queries = new();
 
@@ -29,7 +29,17 @@ public sealed class World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Entity Spawn()
     {
-        var id = UnusedIds.Count > 0 ? UnusedIds.Dequeue() : ++EntityCount;
+        int id;
+        if (UnusedIds.Count > 0)
+        {
+            id = UnusedIds[^1];
+            UnusedIds.RemoveAt(UnusedIds.Count - 1);
+        }
+        else
+        {
+            id = ++EntityCount;
+        }
+        
         if (Meta.Length == EntityCount) Array.Resize(ref Meta, EntityCount << 1);
 
         var table = Tables[0];
@@ -68,7 +78,7 @@ public sealed class World
         meta.Row = 0;
         meta.Gen = (short)-meta.Gen;
 
-        UnusedIds.Enqueue(entity.Id);
+        UnusedIds.Add(entity.Id);
 
         if (!_typesByRelationTarget.TryGetValue(entity, out var list))
         {
