@@ -222,7 +222,7 @@ public struct Enumerator<C> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
         
         storage = tables[tableIndex].GetStorage<C>(Entity.None);
 
@@ -279,7 +279,7 @@ public struct Enumerator<C1, C2> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -345,7 +345,7 @@ public struct Enumerator<C1, C2, C3> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -413,7 +413,7 @@ public struct Enumerator<C1, C2, C3, C4> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -484,7 +484,7 @@ public struct Enumerator<C1, C2, C3, C4, C5> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -557,7 +557,7 @@ public struct Enumerator<C1, C2, C3, C4, C5, C6> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -632,7 +632,7 @@ public struct Enumerator<C1, C2, C3, C4, C5, C6, C7> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -710,7 +710,7 @@ public struct Enumerator<C1, C2, C3, C4, C5, C6, C7, C8> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
@@ -790,7 +790,7 @@ public struct Enumerator<C1, C2, C3, C4, C5, C6, C7, C8, C9> : IDisposable
             tableIndex++;
         }
 
-        if (tableIndex < tables.Count) return false;
+        if (tableIndex == tables.Count) return false;
 
         UpdateStorage();
 
